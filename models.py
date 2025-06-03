@@ -9,49 +9,39 @@ engine = create_engine('sqlite:///noteapp.db', echo=True)
 #create a session in this section
 Session = sessionmaker(bind=engine)
 
+def get_db():
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()
+
 Base = declarative_base()
 
-note_tags = Table(
-    'note_tags',
-    Base.metadata,
-    Column('note_id', Integer, ForeignKey('notes.id'), primary_key=True),
-    Column('tag_id', Integer, ForeignKey('tags.id'), primary_key=True)
-)
-
-class User(Base):
+class Users(Base):
     __tablename__ = 'users'
-
     id = Column(Integer, primary_key=True)
-    username = Column(String(150), unique=True, nullable=False)
-    email = Column(String(255), unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    age = Column(Integer, nullable=False)
+    phone_number = Column(Integer, nullable=False)
+    address = Column(Integer, nullable=False)
+    Visits = relationship("visits", back_populates="users")
 
-    notes = relationship('Note', back_populates='user')
-
-    def __repr__(self):
-        return f"<User(username='{self.username}')>"
-
-class Note(Base):
-    __tablename__ = 'notes'
-
+class Notes(Base):
+    __tablename__ = 'Notes'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    title = Column(String(255), nullable=False)
+    name = Column(String, nullable=False)
     content = Column(Text, nullable=True)
+    title = Column(String(255), nullable=False)
     is_archived = Column(Boolean, default=False)
+    Visits = relationship("visits", back_populates="users")
 
-    user = relationship('User', back_populates='notes')
-    tags = relationship('Tag', secondary=note_tags, back_populates='notes')
-
-    def __repr__(self):
-        return f"<Note(title='{self.title}', user_id={self.user_id})>"
-
-class Tag(Base):
-    __tablename__ = 'tags'
-
+class Tags(Base):
+    __tablename__ = 'Tags'
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    code = Column(Integer, primary_key=False)
+    Visits = relationship("visits", back_populates="users")
+    
 
-    notes = relationship('Note', secondary=note_tags, back_populates='tags')
-
-    def __repr__(self):
-        return f"<Tag(name='{self.name}')>"
+    
