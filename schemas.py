@@ -5,7 +5,7 @@ class UsersSchema(BaseModel):
     age:int
     phone_number:int
     address:str
-    account_types:str
+    citizen:str
 
 class NotesSchema(BaseModel):
     code : int
